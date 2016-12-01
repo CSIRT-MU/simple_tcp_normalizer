@@ -13,18 +13,29 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package ics.netty.example.telnet;
+package ics.muni.netty;
 
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import org.apache.kafka.clients.producer.Producer;
+import org.apache.kafka.clients.producer.ProducerRecord;
 
 @Sharable
 public class NormalizationServerHandler extends SimpleChannelInboundHandler<String> {
 
+    private final Producer<String, String> producer;
+    private final String topic;
+
+    public NormalizationServerHandler(Producer<String, String> producer, String topic) {
+        this.producer = producer;
+        this.topic = topic;
+    }
+
     @Override
     public void channelRead0(ChannelHandlerContext ctx, String request) throws Exception {
-        System.out.println(request);
+        ProducerRecord<String, String> record = new ProducerRecord<>(this.topic, 0, null, request);
+        this.producer.send(record);
     }
 
     @Override

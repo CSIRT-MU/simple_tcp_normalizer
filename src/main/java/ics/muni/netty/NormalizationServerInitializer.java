@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package ics.netty.example.telnet;
+package ics.muni.netty;
 
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
@@ -22,13 +22,18 @@ import io.netty.handler.codec.DelimiterBasedFrameDecoder;
 import io.netty.handler.codec.Delimiters;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
+import org.apache.kafka.clients.producer.Producer;
 
 public class NormalizationServerInitializer extends ChannelInitializer<SocketChannel> {
 
     private static final StringDecoder DECODER = new StringDecoder();
     private static final StringEncoder ENCODER = new StringEncoder();
 
-    private static final NormalizationServerHandler SERVER_HANDLER = new NormalizationServerHandler();
+    private static NormalizationServerHandler SERVER_HANDLER;
+
+    public NormalizationServerInitializer(Producer<String, String> producer, String topic) {
+        SERVER_HANDLER = new NormalizationServerHandler(producer, topic);
+    }
 
     @Override
     public void initChannel(SocketChannel ch) throws Exception {
