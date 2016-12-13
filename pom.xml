@@ -61,8 +61,8 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>ics.muni.netty.NormalizationServer</mainClass>
-                            <packageName>ics.muni.netty</packageName>
+                            <mainClass>cz.muni.csirt.seccloud.normalization.NormalizationServer</mainClass>
+                            <packageName>cz.muni.csirt.seccloud.normalization</packageName>
                         </manifest>
                         <manifestEntries>
                             <mode>development</mode>
