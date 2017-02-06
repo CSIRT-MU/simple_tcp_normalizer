@@ -1,5 +1,11 @@
 # Simple TCP Normalization Component
 
+Prerequisite:
+
+* Java 8
+* Apache Maven
+* Kafka 0.10
+
 Build:
 
 <pre>
