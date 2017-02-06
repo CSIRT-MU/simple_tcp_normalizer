@@ -15,22 +15,47 @@
  */
 package cz.muni.csirt.seccloud.normalization;
 
+import cz.muni.csirt.seccloud.normalization.cli.NormalizerCLI;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
+import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.CmdLineParser;
+import org.kohsuke.args4j.OptionHandlerFilter;
 
 import java.util.Properties;
 
+@SuppressWarnings("SameParameterValue")
 public final class NormalizationServer {
 
-    private static final int LISTEN_PORT = 56789;
-
     public static void main(String[] args) throws Exception {
+        NormalizerCLI cli = new NormalizerCLI();
+        CmdLineParser parser = new CmdLineParser(cli);
+        try {
+            parser.parseArgument(args);
+        } catch (CmdLineException e) {
+            System.err.println(e.getMessage());
+            System.err.println("tcp_normalizer [options...]");
+            parser.printUsage(System.err);
+            System.err.println();
+            // print option sample. This is useful some time
+            System.err.println("Example: tcp_normalizer" + parser.printExample(OptionHandlerFilter.PUBLIC));
+            System.exit(1);
+        }
 
-        Producer<String, String> producer = new KafkaProducer<>(kafkaProperties());
+        final int LISTEN_PORT = cli.getListenPort();
+        final String TOPIC = cli.getTopic();
+        final String BOOTSTRAP_SERVERS = cli.getBootstrapServers();
+        final String ACKS = cli.getAcks();
+        final int RETRIES = cli.getRetries();
+        final int BATCH_SIZE = cli.getBatchSize();
+        final int LINGER_MS = cli.getLingerMs();
+        final int BUFFER_MEMORY = cli.getBufferMemory();
+
+        Producer<String, String> producer = new KafkaProducer<>(kafkaProperties(BOOTSTRAP_SERVERS, ACKS, RETRIES, BATCH_SIZE, LINGER_MS, BUFFER_MEMORY));
 
         EventLoopGroup bossGroup = new NioEventLoopGroup(1);
         EventLoopGroup workerGroup = new NioEventLoopGroup();
@@ -38,7 +63,7 @@ public final class NormalizationServer {
             ServerBootstrap serverBootstrap = new ServerBootstrap();
             serverBootstrap.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
-                    .childHandler(new NormalizationServerInitializer(producer, "ipfix.entry"));
+                    .childHandler(new NormalizationServerInitializer(producer, TOPIC));
 
             serverBootstrap.bind(LISTEN_PORT).sync().channel().closeFuture().sync();
         } finally {
@@ -47,14 +72,14 @@ public final class NormalizationServer {
         }
     }
 
-    private static Properties kafkaProperties() {
+    private static Properties kafkaProperties(String bootstrapServers, String acks, int retries, int batchSize, int lingerMS, int bufferMemory) {
         Properties props = new Properties();
-        props.put("bootstrap.servers", "localhost:9092");
-        props.put("acks", "1");
-        props.put("retries", 0);
-        props.put("batch.size", 16384);
-        props.put("linger.ms", 1);
-        props.put("buffer.memory", 33554432);
+        props.put("bootstrap.servers", bootstrapServers);
+        props.put("acks", acks);
+        props.put("retries", retries);
+        props.put("batch.size", batchSize);
+        props.put("linger.ms", lingerMS);
+        props.put("buffer.memory", bufferMemory);
         props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         return props;
