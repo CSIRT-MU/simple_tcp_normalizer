@@ -7,7 +7,7 @@ public class NormalizerCLI {
     @Option(name = "--listen", required = true, usage = "Listen on PORT", metaVar = "INTEGER")
     private int listenPort = 56789;
 
-    @Option(name = "--topic", usage = "Send messages to TOPIC", metaVar = "STRING")
+    @Option(name = "--topic", required = true, usage = "Send messages to TOPIC", metaVar = "STRING")
     private String topic = "ipfix.entry";
 
     @Option(name = "--bootstrap", usage = "Kafka Bootstrap Servers", metaVar = "STRING")
