@@ -15,6 +15,7 @@
  */
 package cz.muni.csirt.seccloud.normalization;
 
+import cz.muni.csirt.seccloud.normalization.cli.Configuration;
 import cz.muni.csirt.seccloud.normalization.cli.NormalizerCLI;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.EventLoopGroup;
@@ -25,7 +26,10 @@ import org.apache.kafka.clients.producer.Producer;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.kohsuke.args4j.OptionHandlerFilter;
+import org.yaml.snakeyaml.Yaml;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 @SuppressWarnings("SameParameterValue")
@@ -46,14 +50,17 @@ public final class NormalizationServer {
             System.exit(1);
         }
 
-        final int LISTEN_PORT = cli.getListenPort();
-        final String TOPIC = cli.getTopic();
-        final String BOOTSTRAP_SERVERS = cli.getBootstrapServers();
-        final String ACKS = cli.getAcks();
-        final int RETRIES = cli.getRetries();
-        final int BATCH_SIZE = cli.getBatchSize();
-        final int LINGER_MS = cli.getLingerMs();
-        final int BUFFER_MEMORY = cli.getBufferMemory();
+        Yaml yaml = new Yaml();
+        Configuration config = yaml.loadAs(Files.newInputStream(Paths.get(cli.getConfig())), Configuration.class );
+
+        final int LISTEN_PORT = config.getListenPort();
+        final String TOPIC = config.getTopic();
+        final String BOOTSTRAP_SERVERS = config.getBootstrapServers();
+        final String ACKS = config.getAcks();
+        final int RETRIES = config.getRetries();
+        final int BATCH_SIZE = config.getBatchSize();
+        final int LINGER_MS = config.getLingerMs();
+        final int BUFFER_MEMORY = config.getBufferMemory();
 
         Producer<String, String> producer = new KafkaProducer<>(kafkaProperties(BOOTSTRAP_SERVERS, ACKS, RETRIES, BATCH_SIZE, LINGER_MS, BUFFER_MEMORY));
 

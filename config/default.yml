@@ -1,0 +1,11 @@
+---
+
+listenPort: 56789
+topic: ipfix.entry
+
+bootstrapServers: localhost:9092
+acks: 1
+retries: 0
+batchSize: 16384
+lingerMs: 1
+bufferMemory: 33554432
