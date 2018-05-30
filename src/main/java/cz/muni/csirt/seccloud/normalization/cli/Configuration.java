@@ -1,6 +1,7 @@
 package cz.muni.csirt.seccloud.normalization.cli;
 
 public class Configuration {
+    private String listenAddress = "localhost";
     private int listenPort = 56789;
     private String topic = "ipfix.entry";
     private String bootstrapServers = "localhost:9092";
@@ -9,6 +10,14 @@ public class Configuration {
     private int batchSize = 16384;
     private int lingerMs = 1;
     private int bufferMemory = 33554432;
+
+	public String getListenAddress() {
+		return listenAddress;
+	}
+
+	public void setListenAddress(String listenAddress) {
+		this.listenAddress = listenAddress;
+	}
 
     public int getListenPort() {
         return listenPort;

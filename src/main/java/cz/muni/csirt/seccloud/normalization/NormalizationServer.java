@@ -53,6 +53,7 @@ public final class NormalizationServer {
         Yaml yaml = new Yaml();
         Configuration config = yaml.loadAs(Files.newInputStream(Paths.get(cli.getConfig())), Configuration.class );
 
+        final String LISTEN_ADDRESS = config.getListenAddress();
         final int LISTEN_PORT = config.getListenPort();
         final String TOPIC = config.getTopic();
         final String BOOTSTRAP_SERVERS = config.getBootstrapServers();
@@ -72,7 +73,7 @@ public final class NormalizationServer {
                     .channel(NioServerSocketChannel.class)
                     .childHandler(new NormalizationServerInitializer(producer, TOPIC));
 
-            serverBootstrap.bind(LISTEN_PORT).sync().channel().closeFuture().sync();
+            serverBootstrap.bind(LISTEN_ADDRESS, LISTEN_PORT).sync().channel().closeFuture().sync();
         } finally {
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();

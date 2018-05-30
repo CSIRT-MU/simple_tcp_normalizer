@@ -1,5 +1,6 @@
 ---
 
+listenAddress: localhost
 listenPort: 56789
 topic: ipfix.entry
 
